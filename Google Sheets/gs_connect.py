@@ -29,6 +29,9 @@ class GService(object):
         http = credentials.authorize(httplib2.Http())
         self.service = discovery.build("Sheets", "v4", http=http)
 
+    def clear(self, sid, range_name):
+        self.service.spreadsheets().values().clear(spreadsheetId=sid, range=range_name, body={}).execute()
+
     def read_single_column(self, sid, range_name):
         """Read a single column, return a list"""
         result = self.service.spreadsheets().values().get(spreadsheetId=sid, range=range_name, majorDimension="COLUMNS").execute()

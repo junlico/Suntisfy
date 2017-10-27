@@ -10,7 +10,7 @@ import gs_connect
 
 #Spreadsheets ID for sales representatives
 SALES_REP_SID = [
-    
+    "1azL-wYpM9kax1vnDkrt3MLjCCL6w53aXF7NFhH3bi5A"
 ]
 
 DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Downloads")
@@ -117,6 +117,7 @@ def upload_ads(service, sid, daily_df, weekly_df):
         print("Uploading %s ..." % sid)
         if not upload_daily.empty:
             try:
+                service.clear(sid, "Daily!A:P")
                 service.write_range(sid, "Daily!A:P", [upload_daily.columns.tolist()] + upload_daily.values.tolist())
                 print("    Uploading Daily successfully")
             except Exception:
@@ -124,6 +125,7 @@ def upload_ads(service, sid, daily_df, weekly_df):
 
         if not upload_weekly.empty:
             try:
+                service.clear(sid, "Weekly!A:P")
                 service.write_range(sid, "Weekly!A:P", [upload_weekly.columns.tolist()] + upload_weekly.values.tolist())
                 print("    Uploading Weekly successfully")
             except Exception:
