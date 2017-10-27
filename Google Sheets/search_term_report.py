@@ -1,6 +1,6 @@
 """
 Search Term Report
-Need Down load 'Report - Advertising Report - Search Term Report'
+Need Down load 'Reports - Advertising Report - Search Term Report'
 Multiple files in 'Downloads' directory
 """
 import os
@@ -79,7 +79,7 @@ def get_daily_and_weekly_df(report_file_list):
     report_iter = iter(report_file_list)
     curr_df, curr_date = read_df_and_date(next(report_iter))
     to_date = curr_date
-    
+
     daily_df = curr_df.reset_index()
     daily_df = daily_df.loc[daily_df["From"] == curr_date]
 
@@ -90,13 +90,13 @@ def get_daily_and_weekly_df(report_file_list):
     for report in report_iter:
         prev_df, prev_date = read_df_and_date(report)
         daily_df = curr_df.sub(prev_df).dropna().reset_index()
-        
+
         if not daily_df.empty:
             daily_df["From"] = prev_date
             daily_df["To"] = curr_date
             daily_df = daily_df.loc[daily_df["Impressions"] > 0]
             df_list.append(calculate_df(daily_df))
-        
+
         curr_df, curr_date = prev_df, prev_date
 
     daily_df = pandas.concat(df_list)
@@ -106,7 +106,7 @@ def get_daily_and_weekly_df(report_file_list):
     weekly_df["To"] = to_date
 
     return daily_df, calculate_df(weekly_df)
-    
+
 
 def upload_ads(service, sid, daily_df, weekly_df):
     """Get campaign list from 'sid' Settings tab, and uploads data for these compaign."""
@@ -141,5 +141,5 @@ def search_term_report(service):
 
 
 if __name__ == "__main__":
-    service = gs_connect.GService()   
+    service = gs_connect.GService()
     search_term_report(service)
