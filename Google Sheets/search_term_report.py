@@ -7,7 +7,6 @@ import os
 import re
 import pandas
 import gs_connect
-import threading
 
 #Spreadsheets ID for sales representatives
 SALES_REP_SID = [
