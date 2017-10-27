@@ -5,15 +5,13 @@ Multiple files in 'Downloads' directory
 """
 import os
 import re
-import datetime
 import pandas
 import gs_connect
-
+import threading
 
 #Spreadsheets ID for sales representatives
 SALES_REP_SID = [
-    # "1azL-wYpM9kax1vnDkrt3MLjCCL6w53aXF7NFhH3bi5A"
-    "1Xq6vg0aovr40WhvsoDWpg_rSZAnve615rwRtUn39sls"
+    
 ]
 
 DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Downloads")
@@ -52,7 +50,7 @@ def read_df_and_date(file):
 
     index = ["Campaign Name", "Ad Group Name", "Keyword", "Match Type", "Search Term", "From"]
 
-    ads_df = pandas.read_csv(os.path.join(DOWNLOAD_DIR, file), sep="\t", usecols=use_cols).rename(columns=rename)
+    ads_df = pandas.read_csv(os.path.join(DOWNLOAD_DIR, file), sep="\t", encoding="ISO-8859-1", usecols=use_cols).rename(columns=rename)
     to_date = ads_df["To"].max()
     ads_df = ads_df.loc[ads_df["To"] == to_date].set_index(index)
     del ads_df["To"]
@@ -110,8 +108,37 @@ def get_daily_and_weekly_df(report_file_list):
 
     return daily_df, calculate_df(weekly_df)
     
-    
+
+def upload_ads(service, sid, daily_df, weekly_df):
+    """Get campaign list from 'sid' Settings tab, and uploads data for these compaign."""
+    campaign_list = service.read_single_column(sid, "Settings!A2:A")
+    if campaign_list:
+        upload_daily = daily_df.loc[daily_df["Campaign Name"].isin(campaign_list)]
+        upload_weekly = weekly_df.loc[weekly_df["Campaign Name"].isin(campaign_list)]
+        print("Uploading %s ..." % sid)
+        if not upload_daily.empty:
+            try:
+                service.write_range(sid, "Daily!A:P", [upload_daily.columns.tolist()] + upload_daily.values.tolist())
+                print("    Uploading Daily successfully")
+            except Exception:
+                print(Exception)
+
+        if not upload_weekly.empty:
+            try:
+                service.write_range(sid, "Weekly!A:P", [upload_weekly.columns.tolist()] + upload_weekly.values.tolist())
+                print("    Uploading Weekly successfully")
+            except Exception:
+                print(Exception)
+
+
+def search_term_report(service):
+    """Main function of 'Search Term Report'"""
+    daily_df, weekly_df = get_daily_and_weekly_df(get_report_file_list())
+
+    for sid in SALES_REP_SID:
+        upload_ads(service, sid, daily_df, weekly_df)
+
 
 if __name__ == "__main__":
-    fl = get_report_file_list()
-    get_daily_and_weekly_df(fl)
+    service = gs_connect.GService()   
+    search_term_report(service)
