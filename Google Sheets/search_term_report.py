@@ -129,7 +129,7 @@ def search_term_report(service):
             print("Uploading %s ..." % sid)
             if not upload_daily.empty:
                 try:
-                    service.clear(sid, "Daily!A:P")
+                    service.clear(sid, "Daily!A:Q")
                     service.write_range(sid, "Daily!A:P", [upload_daily.columns.tolist()] + upload_daily.values.tolist())
                     print("    Uploading Daily successfully")
                 except Exception:
@@ -137,7 +137,7 @@ def search_term_report(service):
 
             if not upload_weekly.empty:
                 try:
-                    service.clear(sid, "Weekly!A:P")
+                    service.clear(sid, "Weekly!A:Q")
                     service.write_range(sid, "Weekly!A:P", [upload_weekly.columns.tolist()] + upload_weekly.values.tolist())
                     print("    Uploading Weekly successfully")
                 except Exception:
