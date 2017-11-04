@@ -49,6 +49,34 @@ class GService(object):
         self.service.spreadsheets().values().clear(spreadsheetId=sid, range=range_name, body={}).execute()
 
 
+    def delete_range(self, sid, sheet_name):
+        """Detele rows"""
+
+        def get_sheetId(self, sid, sheet_name):
+            """Get sheetID by sheet_name"""
+
+            data = self.service.spreadsheets().get(spreadsheetId=sid).execute()
+            return next((item.get('properties').get('sheetId') for item in data.get('sheets') if item.get('properties').get('title') == sheet_name), None)
+
+
+        sheet_id = get_sheetId(self, sid, sheet_name)
+        request = []
+        request.append({
+            "deleteDimension": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "dimension": "ROWS",
+                    "startIndex": 100,
+                    "endIndex": 10000
+                }
+            }
+        })
+        body = {'requests': request}
+        self.service.spreadsheets().batchUpdate(spreadsheetId=sid, body=body).execute()
+
+
+
+
     def read_single_column(self, sid, range_name):
         """Read a single column, return a list"""
         result = self.service.spreadsheets().values().get(spreadsheetId=sid, range=range_name, majorDimension="COLUMNS").execute()
